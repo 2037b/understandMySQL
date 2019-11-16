@@ -52,28 +52,28 @@ VALUES (1, DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
 
 -- 创建考上北京大学的学生的视图
 CREATE VIEW v_University AS
-SELECT stu.s_name,stu.s_id
+SELECT stu.s_name, stu.s_id
 FROM stu
          INNER JOIN stu_mark ON stu.s_id = stu_mark.s_id
          INNER JOIN sch ON sch.sch_id = stu_mark.sch_id
 WHERE sch_name = '北京大学';
 
 -- 将创建的视图更改为考上清华的学生的视图
-ALTER VIEW v_University AS
-SELECT stu.s_name,stu.s_id
-FROM stu
-         INNER JOIN stu_mark ON stu.s_id = stu_mark.s_id
-         INNER JOIN sch ON sch.sch_id = stu_mark.sch_id
-WHERE sch_name = '清华大学';
+    ALTER VIEW v_University AS
+    SELECT stu.s_name, stu.s_id
+    FROM stu
+             INNER JOIN stu_mark ON stu.s_id = stu_mark.s_id
+             INNER JOIN sch ON sch.sch_id = stu_mark.sch_id
+    WHERE sch_name = '清华大学';
 
 -- 删除创建的视图。
-drop view v_University;
+DROP VIEW v_University;
 
 --  创建一个存储过程用来统计表sch中的记录数,将记录数作为out输出到传入变量
 CREATE
     DEFINER = root@localhost PROCEDURE count_sch(OUT count INT)
 BEGIN
-    select count(*) into count from sch;
+    SELECT count(*) INTO count FROM sch;
 END;
 
 --  创建存储过程，实现 查询stu表中所有的s_id大于传入值的数据
@@ -93,3 +93,18 @@ END;
 --  创建存储过程，用于清理user_log，存储过程接收两个参数，
 --  userId 和 dayNum,根据传入的清理天数清理dayNum这些天之前的所有数据，
 --  如果userId不为null，则清理时userId指定的数据不能被清理掉，如果为null则仅需要根据dayNum进行清理
+DROP PROCEDURE IF EXISTS clean_log;
+CREATE PROCEDURE clean_log(IN userId INT, IN dayNum DATE)
+BEGIN
+    IF userId = NULL THEN
+        DELETE
+        FROM user_log
+        WHERE dayNum > user_log.last_login;
+    ELSE
+        DELETE
+        FROM user_log
+        WHERE dayNum > user_log.last_login
+          AND user_log.user_id != userId;
+    END IF;
+END;
+CALL clean_log(2, '2019-10-26');
