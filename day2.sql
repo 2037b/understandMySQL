@@ -306,12 +306,7 @@ WHERE f1.s_id = f2.s_id
 
 SELECT s_id, f_name
 FROM fruits
-GROUP BY s_id, f_name;--  day2_homework库fruits 表,执行成功；
-
-SELECT *
-FROM fruits
 GROUP BY s_id, f_name;
--- 执行失败；
 
 -- ----------------
 
